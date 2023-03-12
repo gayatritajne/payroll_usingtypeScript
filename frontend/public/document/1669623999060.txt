@@ -1,0 +1,95 @@
+// mongo db easy may be
+  inventory = await Inventory.aggregate([
+      {
+        $match: {
+          "departments.name": "HR",
+          "departments.assets.assetModelNumber": "SACHIN",
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          departments: 1,
+        },
+      },
+      {
+        $redact: {
+          $cond: {
+            if: {
+              $or: [
+                {
+                  $gt: ["$departments", []],
+                },
+                {
+                  $gt: ["$assets", []],
+                },
+                {
+                  $eq: ["$assetModelNumber", "SACHIN"],
+                },
+              ],
+            },
+            then: "$$DESCEND",
+            else: "$$PRUNE",
+          },
+        },
+      },
+    ]);
+
+
+
+// hard one may be
+
+ inventory = await Inventory.aggregate([
+      {
+        $match: {
+          "departments.name": "HR",
+          "departments.assets.assetModelNumber": "Sachin",
+        },
+      },
+      {
+        $redact: {
+          $cond: {
+            if: {
+              $or: [
+                {
+                  $gt: ["$departments", []],
+                },
+                {
+                  $gt: ["$assets", []],
+                },
+                {
+                  $eq: ["$assetModelNumber", "Sachin"],
+                },
+              ],
+            },
+            then: "$$DESCEND",
+            else: "$$PRUNE",
+          },
+        },
+      },
+      {
+        $unwind: "$departments",
+      },
+      {
+        $group: {
+          _id: "$_id",
+          departments: {
+            $first: "$departments",
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          departments: {
+            $push: "$departments",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          departments: 1,
+        },
+      },
+    ]);
