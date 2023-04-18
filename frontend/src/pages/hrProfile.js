@@ -15,6 +15,7 @@ const Profile = () => {
     getUser()
   }, [])
   return (
+    
     <>
       {user ? (
         <Layout>
